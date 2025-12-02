@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Horários - Ifes Campus São Mateus</title>
+    
+    <link rel="icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh1uMiZ5nBmjySYfMomfckqM9EWVIJFNNR0TppcVSdLd27Klpb71z-FowZyhK99L8v24wunnmlmObV2wvUczeDJvye-5qf8EhXzc41k8wQvSly3FkI68J6mlcePxYAeAfR9bHVYxhiULKFG/s1600/386px-Logotipo_IFET.svg.png" type="image/png">
+
+    <style>
+        /* --- Variáveis de Cores do Ifes --- */
+        :root {
+            --ifes-red: #cd191e;
+            --ifes-red-dark: #a61015;
+            --ifes-green: #2f9e41;
+            --text-dark: #333333;
+            --bg-light: #f9f9f9;
+            --white: #ffffff;
+        }
+
+        /* --- Reset Básico para Responsividade --- */
+        * {
+            box-sizing: border-box;
+        }
+
+        /* --- Estilos Gerais --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- Cabeçalho --- */
+        header {
+            width: 100%;
+            background: linear-gradient(135deg, var(--ifes-red) 0%, var(--ifes-red-dark) 100%);
+            color: var(--white);
+            padding: 20px 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        header p.subtitle {
+            margin: 5px 0 0 0;
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        /* --- Container dos Menus --- */
+        .controls-container {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--ifes-green);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+            width: 90%;
+            max-width: 1000px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 220px;
+        }
+
+        label {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        select {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+            width: 100%;
+            cursor: pointer;
+            background-color: var(--white);
+            transition: border-color 0.3s, box-shadow 0.3s;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px top 50%;
+            background-size: 12px auto;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--ifes-green);
+            box-shadow: 0 0 0 3px rgba(47, 158, 65, 0.2);
+        }
+
+        /* --- Área de Exibição da Imagem --- */
+        .image-display {
+            max-width: 1200px;
+            width: 95%;
+            min-height: 600px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;     
+            justify-content: center; 
+            border-radius: 8px;
+            overflow: auto;
+            position: relative;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 60px;
+        }
+
+        .image-display img {
+            max-width: 100%;
+            height: auto;
+            display: block; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Estilo da mensagem de erro */
+        .error-message {
+            color: var(--ifes-red);
+            font-size: 1.1rem;
+            text-align: center;
+            display: none; 
+            font-weight: bold;
+            padding: 20px;
+            border: 2px dashed var(--ifes-red);
+            background-color: #fff0f0;
+            border-radius: 8px;
+            width: 90%;
+        }
+
+        /* --- Rodapé --- */
+        footer {
+            margin-top: auto;
+            width: 100%;
+            background-color: var(--text-dark);
+            color: var(--white);
+            text-align: center;
+            padding: 20px 10px;
+            font-size: 0.9rem;
+            border-top: 4px solid var(--ifes-red);
+            line-height: 1.5;
+        }
+
+        footer a {
+            color: var(--ifes-green);
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+            color: var(--white);
+        }
+
+        /* --- RESPONSIVIDADE --- */
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.5rem; }
+            .controls-container { width: 95%; padding: 15px; gap: 15px; }
+            .image-display { min-height: 400px; }
+        }
+
+        @media (max-width: 480px) {
+            header { padding: 15px 5px; }
+            header h1 { font-size: 1.3rem; }
+            header p.subtitle { font-size: 0.9rem; }
+            .controls-container { flex-direction: column; gap: 15px; padding: 15px; }
+            .filter-group { width: 100%; }
+            .image-display { min-height: 300px; padding: 5px; }
+            .error-message { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Sistema de Horários 2025/2</h1>
+        <p class="subtitle">Instituto Federal do Espírito Santo - Campus São Mateus</p>
+    </header>
+
+    <div class="controls-container">
+        
+        <div class="filter-group">
+            <label for="select-turmas">📅 Filtrar por Turma</label>
+            <select id="select-turmas" class="filter-menu">
+                <option value="">Selecione uma Turma...</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="select-professores">👨‍🏫 Filtrar por Professor</label>
+            <select id="select-professores" class="filter-menu">
+                <option value="">Selecione um Professor...</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="select-salas">📍 Filtrar por Sala</label>
+            <select id="select-salas" class="filter-menu">
+                <option value="">Selecione uma Sala...</option>
+            </select>
+        </div>
+
+    </div>
+
+    <div class="image-display">
+        <img id="main-image" src="icones/unnamed.webp" alt="Visualização">
+        
+        <div id="error-msg" class="error-message">
+            ⚠️ Erro ao carregar imagem.<br>
+            <span style="font-size: 0.9em; font-weight: normal; color: #555;">Verifique se o arquivo existe na pasta correta e se a extensão é .jpg.</span>
+        </div>
+    </div>
+
+    <footer>
+        Desenvolvido por <a href="https://www.saomateus.ifes.edu.br/coordenadoria/cti" target="_blank">CTI Ifes Campus São Mateus</a>
+    </footer>
+
+    <script>
+        // CONFIGURAÇÃO
+        const fileExtension = '.jpg'; 
+        const defaultImage = 'icones/unnamed.webp';
+
+        // 1. Listas de Dados
+        const turmasList = [
+            "1EIM", "2EIV-A", "2EIV-B", "3EIM", "4EIV", 
+            "1MIM-A", "1MIM-B", "2MIV", "3MIM-A", "3MIM-B", "4MIV", 
+            "1EN", "2EN", "3EN", "4EN", 
+            "1MN", "2MNP", "2MN", "3MN", "4MN", 
+            "2ENGMEC", "4ENGMEC", "6ENGMEC", "8ENGMEC", 
+            "2ENGEL", "4ENGEL", "7ENGEL", "9ENGEL", 
+            "Reuniões", "Pós-graduação", "DPGGE", "Extra"
+        ];
+
+        const professoresList = [
+            "Abraão Frossard", "Adriano Nardoto", "Alan Helal", "Alexandre Polizel", "Aloísio Ramos", 
+            "André Silva", "Antonio Júnior", "Antônio Zancanela", "Arthur Amorim", "Arthur Monteiro", 
+            "Carlos Abreu", "Carolina Cañete", "Cleidson Venturini", "Cristiano Tavares", "Dailson Abreu", 
+            "Daniel Carletti", "Daniela Moura", "Diego Lilargem", "Diego Taborda", "DPPGE", 
+            "Eduardo Caetano", "Fabio Reis", "Fernanda Capucho", "Gilson Lima", "Giuliana Ferrari", 
+            "Gledson Melotti", "Guilherme Genehr", "Harrison Marciano", "Henver Effgen", "Jardel Merlin", 
+            "Jean Rubyo", "João Paulo Barbosa", "João Victor", "José Roberto", "Juliana Zaché", 
+            "Kamilla Malverdi", "Laylla Mello", "Leandro Carvalho", "Leonardo Vieira", "Lucas Pagoto", 
+            "Luiz Rafael", "Manoel Tadeu", "Marcos Christo", "Maurício Rodrigues", "Michel dos Santos", 
+            "Monique Missagia", "Ney Francisco", "Pablo Missagia", "Patrícia Andrade", "Paulo Victor", 
+            "Petro 1", "Petro 2", "Petro EL 1", "Rayana Barcelos", "Renan Magnol", 
+            "Rivana Zache", "Robson Gobbi", "Roger Rodrigues", "Sandro Massato", "Silvia Louzada", 
+            "Solivan", "Thiago Boldrini", "Thiago Maduro", "Thomaz Rodrigues", "Tiago Zanotelli", 
+            "Walber Ronconi", "Welliton Carvalho", "Werley Facco", "Wilson Obéd", "Zamith França"
+        ];
+
+        const salasList = [
+            "Laboratório de Corrente Alternada", "A6 - Sala de Aula (Bloco A)", "A9 - Sala Multiuso (Bloco A)", 
+            "B1 - Sala de Aula (Bloco B)", "B2 - Sala de Aula (Bloco B)", "B3 - Sala de Aula (Bloco B)", 
+            "B4 - Sala de Aula (Bloco B)", "B5 - Sala de Aula (Bloco B)", "C1 - Auditório", 
+            "C2 - Sala de Aula (Modulares)", "C3 - Sala de Aula (Modulares)", "C4 - Sala de Aula (Modulares)", 
+            "Lab. Comandos e Automação A5", "Lab. Desenho (G4)", "Lab. Efic. Energ. (B10)", 
+            "Lab. Eletro. (A8)", "Lab. Ensaios (B9)", "Lab. Hidráulica/Pneumática (B6)", 
+            "Lab. Info. 1 (A2)", "Lab. Info. 2 (G5)", "Lab. Inst. Elétricas (A4)", 
+            "Lab. Manutenção (G3)", "Lab. Máquinas Térmicas (B7)", "Lab. Metalografia/Química (B8)", 
+            "Lab. Metro/Física (G6)", "Lab. Sist. Digitais (A7)", "Lab. Soldagem (G1)", 
+            "Laboratório de Máquinas Elétricas (A3)", "Oficina (Ajustagem) (G2)", "Oficina (Caldeiraria) (G2)", 
+            "Oficina (Torno) (G2)", "Sala de Arte e Cultura", "Sala Pós-graduação"
+        ];
+
+        // 2. Elementos DOM
+        const selectTurmas = document.getElementById('select-turmas');
+        const selectProfessores = document.getElementById('select-professores');
+        const selectSalas = document.getElementById('select-salas');
+        const mainImage = document.getElementById('main-image');
+        const errorMsg = document.getElementById('error-msg');
+        const allSelects = document.querySelectorAll('.filter-menu');
+
+        function padNumber(num) {
+            return num.toString().padStart(4, '0');
+        }
+
+        // 3. Preencher Menus
+        function populateSelect(selectElement, dataList, folderName, filePrefix) {
+            dataList.forEach((name, index) => {
+                const option = document.createElement('option');
+                option.text = name;
+                const fileNumber = padNumber(index + 1);
+                option.value = `${folderName}/${filePrefix}-` + fileNumber + fileExtension;
+                selectElement.add(option);
+            });
+        }
+
+        populateSelect(selectTurmas, turmasList, "turmas", "turma_page");
+        populateSelect(selectProfessores, professoresList, "professores", "Professor_page");
+        populateSelect(selectSalas, salasList, "salas", "Sala_page");
+
+        // 4. Lógica Principal
+        function handleSelection(event) {
+            const selectedSelect = event.target;
+            const imagePath = selectedSelect.value;
+
+            // Se usuário selecionou "Selecione..." (vazio), volta para imagem padrão
+            if (!imagePath) {
+                resetDisplay();
+                return;
+            }
+
+            // Reseta outros menus
+            allSelects.forEach(select => {
+                if (select !== selectedSelect) {
+                    select.selectedIndex = 0;
+                }
+            });
+
+            // Prepara para carregar nova imagem
+            errorMsg.style.display = 'none'; 
+            mainImage.style.display = 'block'; 
+            mainImage.src = imagePath; 
+        }
+
+        // 5. Função de Erro
+        mainImage.onerror = function() {
+            if (!mainImage.src.includes(defaultImage)) {
+                mainImage.style.display = 'none';
+                errorMsg.style.display = 'block';
+            }
+        };
+
+        // 6. Resetar para Estado Inicial
+        function resetDisplay() {
+            errorMsg.style.display = 'none';
+            mainImage.style.display = 'block';
+            mainImage.src = defaultImage;
+        }
+
+        // Listeners
+        allSelects.forEach(select => {
+            select.addEventListener('change', handleSelection);
+        });
+
+    </script>
+</body>
+</html>
